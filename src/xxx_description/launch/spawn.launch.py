@@ -5,6 +5,12 @@ from launch_ros.actions import Node
 from launch.actions import ExecuteProcess
 from ament_index_python.packages import get_package_share_directory
 import xacro
+
+
+from ament_index_python.packages import get_package_share_directory
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 def generate_launch_description():
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='True')
@@ -17,7 +23,7 @@ def generate_launch_description():
     robot_description_path =  os.path.join(pkg_dir,"urdf","xxx.xacro",)
     robot_description = {"robot_description": xacro.process_file(robot_description_path).toxml()}
     
-    
+    pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     robot_state_publisher_node = Node(package="robot_state_publisher", executable="robot_state_publisher",output="both",parameters=[robot_description],)
     gazebo = ExecuteProcess(cmd=['gazebo', '--verbose', world, '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so'],output='screen')
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',arguments=['-topic', robot_description,'-entity', 'coconut'],output='screen')
@@ -27,5 +33,5 @@ def generate_launch_description():
     return LaunchDescription([
         gazebo,
         robot_state_publisher_node ,
-        spawn_entity,    
+        spawn_entity,  
     ])
